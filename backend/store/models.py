@@ -11,6 +11,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True, help_text="External image URL (e.g., from Unsplash)")
     category = models.CharField(max_length=100, default='Dairy')
     stock = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -83,4 +84,3 @@ class OrderItem(models.Model):
     def get_total(self):
         """Calculate total price for this order item."""
         return self.price * self.quantity
-
