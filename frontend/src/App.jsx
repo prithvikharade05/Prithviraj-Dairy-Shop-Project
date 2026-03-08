@@ -9,6 +9,9 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import OrderSuccess from './pages/OrderSuccess';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminProducts from './pages/admin/AdminProducts';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -23,6 +26,22 @@ const ProtectedRoute = ({ children }) => {
   }
   
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const isAdmin = localStorage.getItem('is_admin') === 'true';
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (!isAdmin) {
+    return <Navigate to="/" />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -55,6 +74,22 @@ function App() {
                     <ProtectedRoute>
                       <OrderSuccess />
                     </ProtectedRoute>
+                  } />
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/orders" element={
+                    <AdminRoute>
+                      <AdminOrders />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/products" element={
+                    <AdminRoute>
+                      <AdminProducts />
+                    </AdminRoute>
                   } />
                 </Routes>
               </main>

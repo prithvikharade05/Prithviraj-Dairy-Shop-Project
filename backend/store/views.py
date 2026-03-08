@@ -7,11 +7,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .models import Product, Cart, CartItem, Order, OrderItem
+from django.db.models import Count, Sum, Q
+from django.utils import timezone
+from datetime import timedelta
+from .models import Profile, Product, Cart, CartItem, Order, OrderItem
 from .serializers import (
-    UserSerializer, ProductSerializer, CartSerializer,
+    UserSerializer, ProductSerializer, ProductCreateSerializer, CartSerializer,
     CartItemSerializer, OrderSerializer, AddToCartSerializer,
-    UpdateCartItemSerializer
+    UpdateCartItemSerializer, PlaceOrderSerializer, AdminOrderUpdateSerializer
 )
 
 
@@ -58,11 +61,19 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
+        # Check if user is admin
+        is_admin = False
+        try:
+            is_admin = user.profile.is_admin
+        except Profile.DoesNotExist:
+            pass
+        
         # Generate JWT token
         refresh = RefreshToken.for_user(user)
         
         return Response({
             'user': UserSerializer(user).data,
+            'is_admin': is_admin,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'message': 'Login successful'
@@ -194,6 +205,9 @@ class PlaceOrderView(APIView):
 
     def post(self, request):
         """Place order."""
+        serializer = PlaceOrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
         try:
             cart = Cart.objects.get(user=request.user)
         except Cart.DoesNotExist:
@@ -213,12 +227,18 @@ class PlaceOrderView(APIView):
         for item in cart.items.all():
             total_amount += item.get_total()
         
-        # Create order
+        # Get optional fields
+        shipping_address = serializer.validated_data.get('shipping_address', '')
+        phone = serializer.validated_data.get('phone', '')
+        
+        # Create order (order_id will be auto-generated)
         order = Order.objects.create(
             user=request.user,
             total_amount=total_amount,
             payment_method='COD',
-            status='Pending'
+            status='Pending',
+            shipping_address=shipping_address,
+            phone=phone
         )
         
         # Create order items and reduce stock
@@ -263,4 +283,283 @@ class OrderDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         """Get order for current user."""
         return Order.objects.filter(user=self.request.user)
+
+
+# ==================== ADMIN VIEWS ====================
+
+class IsAdminUser(permissions.BasePermission):
+    """Permission check for admin users."""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        try:
+            return request.user.profile.is_admin
+        except Profile.DoesNotExist:
+            return False
+
+
+class AdminLoginView(APIView):
+    """View for admin login."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        if not username or not password:
+            return Response(
+                {'error': 'Please provide both username and password'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = authenticate(username=username, password=password)
+        
+        if user is None:
+            return Response(
+                {'error': 'Invalid credentials'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Check if user is admin
+        try:
+            if not user.profile.is_admin:
+                return Response(
+                    {'error': 'Access denied. Admin privileges required.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except Profile.DoesNotExist:
+            return Response(
+                {'error': 'Access denied. Admin privileges required.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Generate JWT token
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'user': UserSerializer(user).data,
+            'is_admin': True,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'message': 'Admin login successful'
+        }, status=status.HTTP_200_OK)
+
+
+class AdminDashboardView(APIView):
+    """View for admin dashboard statistics."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        """Get dashboard statistics."""
+        # Total orders
+        total_orders = Order.objects.count()
+        
+        # Total revenue
+        total_revenue = Order.objects.exclude(status='Cancelled').aggregate(
+            total=Sum('total_amount')
+        )['total'] or 0
+        
+        # Orders by status
+        orders_by_status = Order.objects.values('status').annotate(
+            count=Count('id')
+        )
+        
+        # Today's orders
+        today = timezone.now().date()
+        today_orders = Order.objects.filter(created_at__date=today).count()
+        today_revenue = Order.objects.filter(
+            created_at__date=today
+        ).exclude(status='Cancelled').aggregate(
+            total=Sum('total_amount')
+        )['total'] or 0
+        
+        # Recent orders (last 10)
+        recent_orders = Order.objects.order_by('-created_at')[:10]
+        
+        # Last 7 days order statistics
+        week_stats = []
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_orders = Order.objects.filter(created_at__date=day).count()
+            day_revenue = Order.objects.filter(
+                created_at__date=day
+            ).exclude(status='Cancelled').aggregate(
+                total=Sum('total_amount')
+            )['total'] or 0
+            week_stats.append({
+                'date': day.strftime('%Y-%m-%d'),
+                'orders': day_orders,
+                'revenue': float(day_revenue)
+            })
+        
+        # Pending orders count
+        pending_orders = Order.objects.filter(status='Pending').count()
+        
+        return Response({
+            'total_orders': total_orders,
+            'total_revenue': float(total_revenue),
+            'orders_by_status': list(orders_by_status),
+            'today_orders': today_orders,
+            'today_revenue': float(today_revenue),
+            'pending_orders': pending_orders,
+            'recent_orders': OrderSerializer(recent_orders, many=True).data,
+            'week_stats': week_stats
+        }, status=status.HTTP_200_OK)
+
+
+class AdminOrderListView(APIView):
+    """View for admin to list all orders."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        """Get all orders with optional filtering."""
+        status_filter = request.query_params.get('status', None)
+        
+        orders = Order.objects.all().order_by('-created_at')
+        
+        if status_filter:
+            orders = orders.filter(status=status_filter)
+        
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AdminOrderDetailView(APIView):
+    """View for admin to get/update specific order."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, pk):
+        """Get order details."""
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response(
+                {'error': 'Order not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        """Update order status."""
+        serializer = AdminOrderUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response(
+                {'error': 'Order not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        new_status = serializer.validated_data['status']
+        old_status = order.status
+        order.status = new_status
+        order.save()
+        
+        # If order is cancelled, restore stock
+        if new_status == 'Cancelled' and old_status != 'Cancelled':
+            for item in order.items.all():
+                item.product.stock += item.quantity
+                item.product.save()
+        
+        return Response({
+            'message': f'Order status updated from {old_status} to {new_status}',
+            'order': OrderSerializer(order).data
+        }, status=status.HTTP_200_OK)
+
+
+class AdminProductListView(APIView):
+    """View for admin to manage products."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        """List all products."""
+        products = Product.objects.all().order_by('-created_at')
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """Create new product."""
+        serializer = ProductCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.save()
+        return Response(
+            {
+                'message': 'Product created successfully',
+                'product': ProductSerializer(product).data
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
+class AdminProductDetailView(APIView):
+    """View for admin to update/delete specific product."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, pk):
+        """Get product details."""
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {'error': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        """Update product."""
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {'error': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = ProductCreateSerializer(product, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.save()
+        
+        return Response(
+            {
+                'message': 'Product updated successfully',
+                'product': ProductSerializer(product).data
+            },
+            status=status.HTTP_200_OK
+        )
+
+    def delete(self, request, pk):
+        """Delete product."""
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {'error': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        product.delete()
+        
+        return Response(
+            {'message': 'Product deleted successfully'},
+            status=status.HTTP_200_OK
+        )
+
+
+class AdminUserListView(APIView):
+    """View for admin to list all users."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        """List all users with their profiles."""
+        from django.contrib.auth.models import User
+        users = User.objects.all().order_by('-date_joined')
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 

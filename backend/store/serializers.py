@@ -3,19 +3,40 @@ Serializers for store models.
 """
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Product, Cart, CartItem, Order, OrderItem
+from .models import Profile, Product, Cart, CartItem, Order, OrderItem
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """Serializer for Profile model."""
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.CharField(source='user.email', read_only=True)
+    
+    class Meta:
+        model = Profile
+        fields = ['id', 'user', 'username', 'email', 'is_admin', 'created_at']
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model."""
+    is_admin = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'password', 'is_admin']
         extra_kwargs = {'password': {'write_only': True}}
+    
+    def get_is_admin(self, obj):
+        """Check if user is admin."""
+        try:
+            return obj.profile.is_admin
+        except Profile.DoesNotExist:
+            return False
 
     def create(self, validated_data):
         """Create a new user with encrypted password."""
         user = User.objects.create_user(**validated_data)
+        # Create profile for user
+        Profile.objects.create(user=user, is_admin=False)
         return user
 
 
@@ -25,7 +46,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'image', 'image_url', 'category', 'stock', 'created_at']
+        fields = ['id', 'name', 'description', 'price', 'image', 'image_url', 'category', 'stock', 'created_at', 'updated_at']
     
     def get_image_url(self, obj):
         """Get full image URL - prioritizes external image_url, falls back to local image."""
@@ -38,6 +59,14 @@ class ProductSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.image.url)
         return None
+
+
+class ProductCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating/updating products (admin)."""
+    
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'price', 'image', 'image_url', 'category', 'stock']
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -71,15 +100,20 @@ class CartSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     """Serializer for OrderItem model."""
     product_name = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
     item_total = serializers.SerializerMethodField()
     
     class Meta:
         model = OrderItem
-        fields = ['id', 'product_name', 'quantity', 'price', 'item_total']
+        fields = ['id', 'product_id', 'product_name', 'quantity', 'price', 'item_total']
     
     def get_product_name(self, obj):
         """Get product name."""
         return obj.product.name
+    
+    def get_product_id(self, obj):
+        """Get product ID."""
+        return obj.product.id
     
     def get_item_total(self, obj):
         """Get total price."""
@@ -90,14 +124,24 @@ class OrderSerializer(serializers.ModelSerializer):
     """Serializer for Order model."""
     items = OrderItemSerializer(many=True, read_only=True)
     user_username = serializers.SerializerMethodField()
+    user_email = serializers.SerializerMethodField()
+    order_id_display = serializers.SerializerMethodField()
     
     class Meta:
         model = Order
-        fields = ['id', 'user', 'user_username', 'items', 'total_amount', 'status', 'payment_method', 'created_at']
+        fields = ['id', 'order_id', 'order_id_display', 'user', 'user_username', 'user_email', 'items', 'total_amount', 'status', 'payment_method', 'shipping_address', 'phone', 'created_at', 'updated_at']
     
     def get_user_username(self, obj):
         """Get username."""
         return obj.user.username
+    
+    def get_user_email(self, obj):
+        """Get user email."""
+        return obj.user.email
+    
+    def get_order_id_display(self, obj):
+        """Get order ID for display, fallback to id if order_id is None."""
+        return obj.order_id or f"ORD-OLD-{obj.id}"
 
 
 class AddToCartSerializer(serializers.Serializer):
@@ -113,5 +157,11 @@ class UpdateCartItemSerializer(serializers.Serializer):
 
 class PlaceOrderSerializer(serializers.Serializer):
     """Serializer for placing an order."""
-    pass
+    shipping_address = serializers.CharField(required=False, allow_blank=True)
+    phone = serializers.CharField(required=False, allow_blank=True)
+
+
+class AdminOrderUpdateSerializer(serializers.Serializer):
+    """Serializer for admin to update order status."""
+    status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)
 

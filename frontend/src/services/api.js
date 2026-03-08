@@ -46,6 +46,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('is_admin');
         window.location.href = '/login';
       }
     }
@@ -75,8 +76,32 @@ export const cartAPI = {
 };
 
 export const orderAPI = {
-  placeOrder: () => api.post('/api/orders/place/'),
+  placeOrder: (data) => api.post('/api/orders/place/', data),
   getOrders: () => api.get('/api/orders/'),
   getOrderById: (id) => api.get(`/api/orders/${id}/`),
+};
+
+// Admin API endpoints
+export const adminAPI = {
+  login: (username, password) => api.post('/api/admin/login/', { username, password }),
+  getDashboard: () => api.get('/api/admin/dashboard/'),
+  
+  // Orders
+  getOrders: (status) => {
+    const params = status ? { status } : {};
+    return api.get('/api/admin/orders/', { params });
+  },
+  getOrderById: (id) => api.get(`/api/admin/orders/${id}/`),
+  updateOrderStatus: (id, status) => api.put(`/api/admin/orders/${id}/`, { status }),
+  
+  // Products
+  getProducts: () => api.get('/api/admin/products/'),
+  getProductById: (id) => api.get(`/api/admin/products/${id}/`),
+  createProduct: (data) => api.post('/api/admin/products/', data),
+  updateProduct: (id, data) => api.put(`/api/admin/products/${id}/`, data),
+  deleteProduct: (id) => api.delete(`/api/admin/products/${id}/`),
+  
+  // Users
+  getUsers: () => api.get('/api/admin/users/'),
 };
 

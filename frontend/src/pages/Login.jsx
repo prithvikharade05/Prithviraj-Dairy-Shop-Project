@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Droplets, Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Droplets, Mail, Lock, User, ArrowRight, Loader2, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isAdminMode, setIsAdminMode] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -41,6 +42,42 @@ const Login = () => {
     }
   };
 
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/api/admin/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Admin login failed');
+      }
+
+      // Store tokens
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      localStorage.setItem('is_admin', 'true');
+      
+      showToast('Welcome to Admin Dashboard!', 'success');
+      navigate('/admin');
+    } catch (error) {
+      showToast(error.message || 'Something went wrong', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       {/* Background Effects */}
@@ -48,6 +85,21 @@ const Login = () => {
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
+
+      {/* Admin Button - Top Right */}
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        onClick={() => setIsAdminMode(!isAdminMode)}
+        className={`fixed top-4 right-4 px-4 py-2 rounded-xl flex items-center gap-2 transition-all ${
+          isAdminMode 
+            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg' 
+            : 'glass bg-white/40 text-indigo-900 hover:bg-white/60'
+        }`}
+      >
+        <Shield className="w-5 h-5" />
+        <span className="font-medium">Admin</span>
+      </motion.button>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -69,7 +121,9 @@ const Login = () => {
             >
               <Droplets className="w-8 h-8 text-white" />
             </motion.div>
-            <span className="text-2xl font-bold text-indigo-900 tracking-wide">Prithviraj Milk Shop</span>
+            <span className="text-2xl font-bold text-indigo-900 tracking-wide">
+              {isAdminMode ? 'Admin Panel' : 'Prithviraj Milk Shop'}
+            </span>
           </div>
         </motion.div>
 
@@ -81,15 +135,17 @@ const Login = () => {
           className="glass rounded-3xl p-8 shadow-2xl bg-white/40 backdrop-blur-md"
         >
           <h2 className="text-2xl font-bold text-indigo-900 text-center mb-2">
-            {isLogin ? 'Welcome Back!' : 'Create Account'}
+            {isAdminMode ? 'Admin Login' : (isLogin ? 'Welcome Back!' : 'Create Account')}
           </h2>
           <p className="text-indigo-900/60 text-center mb-8">
-            {isLogin 
-              ? 'Sign in to continue to your account' 
-              : 'Join us for premium dairy products'}
+            {isAdminMode 
+              ? 'Sign in to access admin panel' 
+              : (isLogin 
+                ? 'Sign in to continue to your account' 
+                : 'Join us for premium dairy products')}
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={isAdminMode ? handleAdminLogin : handleSubmit} className="space-y-5">
             {/* Username */}
             <div>
               <label className="block text-indigo-900/80 text-sm font-medium mb-2">
@@ -110,7 +166,7 @@ const Login = () => {
             </div>
 
             {/* Email (only for register) */}
-            {!isLogin && (
+            {!isLogin && !isAdminMode && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -164,28 +220,47 @@ const Login = () => {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
+                  {isAdminMode ? 'Admin Login' : (isLogin ? 'Sign In' : 'Create Account')}
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </motion.button>
           </form>
 
-          {/* Toggle */}
-          <p className="text-center text-indigo-900/60 mt-6">
-            {isLogin ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
-            >
-              {isLogin ? 'Sign Up' : 'Sign In'}
-            </button>
-          </p>
+          {/* Toggle (only for non-admin mode) */}
+          {!isAdminMode && (
+            <p className="text-center text-indigo-900/60 mt-6">
+              {isLogin ? "Don't have an account? " : 'Already have an account? '}
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+              >
+                {isLogin ? 'Sign Up' : 'Sign In'}
+              </button>
+            </p>
+          )}
+
+          {/* Back to User Login */}
+          {isAdminMode && (
+            <p className="text-center text-indigo-900/60 mt-6">
+              Not an admin?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdminMode(false);
+                  setIsLogin(true);
+                }}
+                className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+              >
+                User Login
+              </button>
+            </p>
+          )}
         </motion.div>
 
         {/* Demo Credentials */}
-        {isLogin && (
+        {isLogin && !isAdminMode && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
