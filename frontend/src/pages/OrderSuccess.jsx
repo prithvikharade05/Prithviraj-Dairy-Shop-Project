@@ -8,7 +8,7 @@ const OrderSuccess = () => {
 
   // Confetti effect
   useEffect(() => {
-    const colors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EC4899'];
+    const colors = ['#6366F1', '#8B5CF6', '#10B981', '#F59E0B', '#EC4899'];
     const confettiCount = 100;
     const confettiElements = [];
 
@@ -53,7 +53,7 @@ const OrderSuccess = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass rounded-3xl p-12"
+          className="glass rounded-3xl p-12 bg-white/40 backdrop-blur-md"
         >
           {/* Animated Checkmark */}
           <motion.div
@@ -76,9 +76,9 @@ const OrderSuccess = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-3xl font-bold text-white mb-4"
+            className="text-3xl font-bold text-indigo-900 mb-4"
           >
-            Order Placed Successfully!
+            Your order has been placed successfully!
           </motion.h1>
 
           {/* Message */}
@@ -86,7 +86,7 @@ const OrderSuccess = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="text-white/70 text-lg mb-8"
+            className="text-indigo-900/70 text-lg mb-8"
           >
             Thank you for your order. Your premium dairy products will be delivered soon!
           </motion.p>
@@ -96,29 +96,47 @@ const OrderSuccess = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="glass rounded-2xl p-6 mb-8"
+            className="glass rounded-2xl p-6 mb-8 bg-white/30"
           >
-            <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
+            <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
               <PartyPopper className="w-5 h-5" />
               <span className="font-medium">Cash on Delivery</span>
             </div>
-            <p className="text-white/60 text-sm">
+            <p className="text-indigo-900/60 text-sm">
               Please have the exact amount ready when the delivery arrives.
             </p>
           </motion.div>
+
+          {/* Thank you from company */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75 }}
+            className="text-indigo-900/50 text-sm mb-6"
+          >
+            Thank you for shopping with
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-xl font-bold text-indigo-800 mb-8"
+          >
+            Prithviraj Milk Shop
+          </motion.p>
 
           {/* Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.85 }}
             className="space-y-4"
           >
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/')}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all"
             >
               <Home className="w-5 h-5" />
               Back to Home
@@ -128,7 +146,7 @@ const OrderSuccess = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/cart')}
-              className="w-full py-4 rounded-xl bg-white/10 text-white font-semibold hover:bg-white/20 transition-colors"
+              className="w-full py-4 rounded-xl bg-white/50 text-indigo-900 font-semibold hover:bg-white/70 transition-colors"
             >
               View Cart
             </motion.button>
@@ -148,7 +166,7 @@ const OrderSuccess = () => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 1 + i * 0.1 }}
-              className="w-3 h-3 rounded-full bg-purple-500"
+              className="w-3 h-3 rounded-full bg-indigo-500"
               style={{ animationDelay: `${i * 0.1}s` }}
             />
           ))}
@@ -159,4 +177,3 @@ const OrderSuccess = () => {
 };
 
 export default OrderSuccess;
-

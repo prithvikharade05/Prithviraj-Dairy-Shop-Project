@@ -35,24 +35,24 @@ const Navbar = () => {
             <motion.div
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.5 }}
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30"
             >
               <Droplets className="w-6 h-6 text-white" />
             </motion.div>
-            <span className="text-xl font-bold gradient-text">MilkShop</span>
+            <span className="text-xl font-bold text-indigo-900 tracking-wide">Prithviraj Milk Shop</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <Link
               to="/"
-              className="text-white/80 hover:text-white transition-colors font-medium"
+              className="text-indigo-900/80 hover:text-indigo-900 transition-colors font-medium"
             >
               Home
             </Link>
             <Link
               to="/cart"
-              className="relative text-white/80 hover:text-white transition-colors"
+              className="relative text-indigo-900/80 hover:text-indigo-900 transition-colors"
             >
               <motion.div
                 whileHover={{ scale: 1.1 }}
@@ -63,7 +63,7 @@ const Navbar = () => {
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs flex items-center justify-center text-white font-bold"
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full text-xs flex items-center justify-center text-white font-bold shadow-lg"
                   >
                     {cartCount}
                   </motion.span>
@@ -72,7 +72,7 @@ const Navbar = () => {
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-indigo-900/80 hover:text-indigo-900 transition-colors"
             >
               <LogOut className="w-5 h-5" />
               <span className="font-medium">Logout</span>
@@ -81,7 +81,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white"
+            className="md:hidden text-indigo-900"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -95,26 +95,26 @@ const Navbar = () => {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="md:hidden glass border-t border-white/10"
+          className="md:hidden glass border-t border-indigo-200/50"
         >
           <div className="px-4 py-4 space-y-3">
             <Link
               to="/"
-              className="block text-white/80 hover:text-white transition-colors font-medium"
+              className="block text-indigo-900/80 hover:text-indigo-900 transition-colors font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/cart"
-              className="block text-white/80 hover:text-white transition-colors font-medium"
+              className="block text-indigo-900/80 hover:text-indigo-900 transition-colors font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               Cart ({cartCount})
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-white/80 hover:text-white transition-colors w-full"
+              className="flex items-center gap-2 text-indigo-900/80 hover:text-indigo-900 transition-colors w-full"
             >
               <LogOut className="w-5 h-5" />
               <span className="font-medium">Logout</span>

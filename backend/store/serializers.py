@@ -28,7 +28,11 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'image', 'image_url', 'category', 'stock', 'created_at']
     
     def get_image_url(self, obj):
-        """Get full image URL."""
+        """Get full image URL - prioritizes external image_url, falls back to local image."""
+        # First, check if there's an external URL (from seed data or manual entry)
+        if obj.image_url:
+            return obj.image_url
+        # Second, check if there's a local image upload
         if obj.image:
             request = self.context.get('request')
             if request:

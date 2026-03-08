@@ -34,16 +34,16 @@ const Cart = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-white/10 flex items-center justify-center">
-            <ShoppingBag className="w-16 h-16 text-white/40" />
+          <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-indigo-500/20 flex items-center justify-center">
+            <ShoppingBag className="w-16 h-16 text-indigo-900/40" />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3">Your Cart is Empty</h2>
-          <p className="text-white/60 mb-8">Looks like you haven't added any items yet.</p>
+          <h2 className="text-3xl font-bold text-indigo-900 mb-3">Your Cart is Empty</h2>
+          <p className="text-indigo-900/60 mb-8">Looks like you haven't added any items yet.</p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/')}
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-lg shadow-purple-500/30"
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg shadow-indigo-500/30"
           >
             Browse Products
           </motion.button>
@@ -59,7 +59,7 @@ const Cart = () => {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto"
       >
-        <h1 className="text-3xl font-bold text-white mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold text-indigo-900 mb-8">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
@@ -70,10 +70,10 @@ const Cart = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="glass rounded-2xl p-4 flex gap-4"
+                className="glass rounded-2xl p-4 flex gap-4 bg-white/40"
               >
                 {/* Product Image */}
-                <div className="w-24 h-24 rounded-xl overflow-hidden bg-white/5 flex-shrink-0">
+                <div className="w-24 h-24 rounded-xl overflow-hidden bg-indigo-100 flex-shrink-0">
                   {item.product?.image_url ? (
                     <img
                       src={item.product.image_url}
@@ -89,14 +89,14 @@ const Cart = () => {
 
                 {/* Product Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-semibold text-lg truncate">
+                  <h3 className="text-indigo-900 font-semibold text-lg truncate">
                     {item.product?.name}
                   </h3>
-                  <p className="text-white/60 text-sm mb-2">
-                    ${parseFloat(item.product?.price).toFixed(2)} each
+                  <p className="text-indigo-900/60 text-sm mb-2">
+                    ₹{parseFloat(item.product?.price).toFixed(0)} each
                   </p>
-                  <p className="text-purple-400 font-bold">
-                    ${item.total_price?.toFixed(2)}
+                  <p className="text-indigo-700 font-bold">
+                    ₹{item.total_price?.toFixed(0)}
                   </p>
                 </div>
 
@@ -104,23 +104,23 @@ const Cart = () => {
                 <div className="flex flex-col items-end justify-between">
                   <button
                     onClick={() => handleRemoveItem(item.id)}
-                    className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                    className="p-2 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                      className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center hover:bg-indigo-600"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="text-white font-semibold w-8 text-center">
+                    <span className="text-indigo-900 font-semibold w-8 text-center">
                       {item.quantity}
                     </span>
                     <button
                       onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                      className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                      className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center hover:bg-indigo-600"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -136,27 +136,27 @@ const Cart = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="glass rounded-2xl p-6 sticky top-24"
+              className="glass rounded-2xl p-6 sticky top-24 bg-white/40"
             >
-              <h2 className="text-xl font-bold text-white mb-6">Order Summary</h2>
+              <h2 className="text-xl font-bold text-indigo-900 mb-6">Order Summary</h2>
               
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-white/70">
+                <div className="flex justify-between text-indigo-900/70">
                   <span>Items ({cartItems.length})</span>
-                  <span>${cartTotal?.toFixed(2)}</span>
+                  <span>₹{cartTotal?.toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between text-white/70">
+                <div className="flex justify-between text-indigo-900/70">
                   <span>Shipping</span>
-                  <span className="text-green-400">Free</span>
+                  <span className="text-green-600">Free</span>
                 </div>
-                <div className="flex justify-between text-white/70">
+                <div className="flex justify-between text-indigo-900/70">
                   <span>Tax</span>
-                  <span>$0.00</span>
+                  <span>₹0</span>
                 </div>
-                <div className="border-t border-white/10 pt-3 flex justify-between">
-                  <span className="text-white font-semibold">Total</span>
-                  <span className="text-2xl font-bold gradient-text">
-                    ${cartTotal?.toFixed(2)}
+                <div className="border-t border-indigo-200/50 pt-3 flex justify-between">
+                  <span className="text-indigo-900 font-semibold">Total</span>
+                  <span className="text-2xl font-bold text-indigo-700">
+                    ₹{cartTotal?.toFixed(0)}
                   </span>
                 </div>
               </div>
@@ -166,7 +166,7 @@ const Cart = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={handlePlaceOrder}
                 disabled={loading}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all disabled:opacity-50"
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -178,7 +178,7 @@ const Cart = () => {
                 )}
               </motion.button>
 
-              <p className="text-white/40 text-xs text-center mt-4">
+              <p className="text-indigo-900/40 text-xs text-center mt-4">
                 Cash on Delivery • Pay when you receive
               </p>
             </motion.div>
@@ -190,4 +190,3 @@ const Cart = () => {
 };
 
 export default Cart;
-

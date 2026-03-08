@@ -20,7 +20,7 @@ const ProductCard = ({ product, index }) => {
       whileHover={{ y: -5 }}
       className="group"
     >
-      <div className="glass rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
+      <div className="bg-white/40 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-103 border border-white/30">
         {/* Image Container */}
         <div className="relative h-48 overflow-hidden">
           {product.image_url ? (
@@ -30,7 +30,7 @@ const ProductCard = ({ product, index }) => {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center">
+            <div className="w-full h-full bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center">
               <span className="text-6xl">🥛</span>
             </div>
           )}
@@ -59,7 +59,7 @@ const ProductCard = ({ product, index }) => {
 
           {/* Category Badge */}
           <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-500/80 text-white backdrop-blur-sm">
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-indigo-500/80 text-white backdrop-blur-sm">
               {product.category}
             </span>
           </div>
@@ -76,17 +76,17 @@ const ProductCard = ({ product, index }) => {
 
         {/* Content */}
         <div className="p-4">
-          <h3 className="text-white font-semibold text-lg mb-1 truncate">
+          <h3 className="text-indigo-900 font-semibold text-lg mb-1 truncate">
             {product.name}
           </h3>
-          <p className="text-white/60 text-sm mb-3 line-clamp-2">
+          <p className="text-indigo-900/60 text-sm mb-3 line-clamp-2">
             {product.description}
           </p>
           
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-2xl font-bold gradient-text">
-                ${parseFloat(product.price).toFixed(2)}
+              <span className="text-2xl font-bold text-indigo-700">
+                ₹{parseFloat(product.price).toFixed(0)}
               </span>
             </div>
             <motion.button
@@ -94,7 +94,7 @@ const ProductCard = ({ product, index }) => {
               whileTap={{ scale: 0.95 }}
               onClick={handleAddToCart}
               disabled={loading || product.stock === 0}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-purple-500/30 transition-all"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300"
             >
               {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </motion.button>
@@ -106,4 +106,3 @@ const ProductCard = ({ product, index }) => {
 };
 
 export default ProductCard;
-

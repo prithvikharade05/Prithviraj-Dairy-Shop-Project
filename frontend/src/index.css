@@ -11,7 +11,11 @@
 body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+  background: linear-gradient(
+    135deg,
+    rgb(203, 213, 254),
+    rgb(165, 180, 252)
+  );
   background-attachment: fixed;
 }
 

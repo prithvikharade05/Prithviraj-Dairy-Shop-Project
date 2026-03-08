@@ -1,30 +1,25 @@
-# Premium Dairy E-Commerce Project
+# Prithviraj Milk Shop - Upgrade COMPLETED ✅
 
-## Task: Build a full-stack dairy e-commerce website
+## Backend
+- [x] 1. Update seed_products.py with Indian dairy products
 
-### Backend (Django + DRF)
-- [ ] Create virtual environment
-- [ ] Install Django, DRF, JWT, CORS
-- [ ] Create Django project
-- [ ] Create store app
-- [ ] Configure settings.py
-- [ ] Create models (Product, Cart, CartItem, Order, OrderItem)
-- [ ] Create serializers
-- [ ] Create API views
-- [ ] Configure URLs
+## Frontend - Styles
+- [x] 2. Update index.css with new gradient background
 
-### Frontend (React Vite)
-- [ ] Create Vite React app
-- [ ] Install dependencies (Tailwind, Router, Axios, Framer Motion, Lucide)
-- [ ] Create folder structure
-- [ ] Create context providers
-- [ ] Create components
-- [ ] Create pages (Login, Home, Product Detail, Cart, Order Success)
-- [ ] Configure routing
-- [ ] Add styling
+## Frontend - Components
+- [x] 3. Update Navbar.jsx - Company name "Prithviraj Milk Shop"
+- [x] 4. Update Footer.jsx - Branding updates
+- [x] 5. Update ProductCard.jsx - ₹ prices, hover effects
 
-### Final Steps
-- [x] Run backend server
-- [x] Run frontend server
-- [x] Test the application
+## Frontend - Pages
+- [x] 6. Update Login.jsx - Branding
+- [x] 7. Update Home.jsx - Hero section
+- [x] 8. Update ProductDetail.jsx - ₹ prices
+- [x] 9. Update Cart.jsx - ₹ prices
+- [x] 10. Update OrderSuccess.jsx - Company name
 
+## Database
+- [x] Added image_url field to Product model
+- [x] Created migration 0002_product_image_url.py
+- [x] Applied migration
+- [x] Seeded 10 Indian dairy products

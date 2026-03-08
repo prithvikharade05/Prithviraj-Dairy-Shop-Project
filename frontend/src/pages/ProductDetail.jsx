@@ -56,7 +56,7 @@ const ProductDetail = () => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1 }}
-          className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full"
+          className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full"
         />
       </div>
     );
@@ -78,7 +78,7 @@ const ProductDetail = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors"
+          className="flex items-center gap-2 text-indigo-900/70 hover:text-indigo-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Products</span>
@@ -91,7 +91,7 @@ const ProductDetail = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="glass rounded-3xl overflow-hidden">
+            <div className="glass rounded-3xl overflow-hidden bg-white/40">
               {product.image_url && !imageError ? (
                 <img
                   src={product.image_url}
@@ -100,7 +100,7 @@ const ProductDetail = () => {
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <div className="w-full h-[400px] bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center">
+                <div className="w-full h-[400px] bg-gradient-to-br from-indigo-500/30 to-purple-500/30 flex items-center justify-center">
                   <span className="text-9xl">🥛</span>
                 </div>
               )}
@@ -115,25 +115,25 @@ const ProductDetail = () => {
             className="space-y-6"
           >
             {/* Category Badge */}
-            <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-indigo-500/20 text-indigo-700 border border-indigo-500/30">
               {product.category}
             </span>
 
             {/* Product Name */}
-            <h1 className="text-4xl font-bold text-white">
+            <h1 className="text-4xl font-bold text-indigo-900">
               {product.name}
             </h1>
 
             {/* Price */}
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold gradient-text">
-                ${parseFloat(product.price).toFixed(2)}
+              <span className="text-4xl font-bold text-indigo-700">
+                ₹{parseFloat(product.price).toFixed(0)}
               </span>
-              <span className="text-white/50">/ unit</span>
+              <span className="text-indigo-900/50">/ unit</span>
             </div>
 
             {/* Description */}
-            <p className="text-white/70 text-lg leading-relaxed">
+            <p className="text-indigo-900/70 text-lg leading-relaxed">
               {product.description}
             </p>
 
@@ -141,17 +141,17 @@ const ProductDetail = () => {
             <div className="flex items-center gap-4">
               {product.stock > 0 ? (
                 <>
-                  <span className="flex items-center gap-2 text-green-400">
+                  <span className="flex items-center gap-2 text-green-600">
                     <Package className="w-5 h-5" />
                     In Stock
                   </span>
-                  <span className="text-white/50">|</span>
-                  <span className="text-white/70">
+                  <span className="text-indigo-900/50">|</span>
+                  <span className="text-indigo-900/70">
                     {product.stock} units available
                   </span>
                 </>
               ) : (
-                <span className="flex items-center gap-2 text-red-400">
+                <span className="flex items-center gap-2 text-red-500">
                   <Package className="w-5 h-5" />
                   Out of Stock
                 </span>
@@ -160,8 +160,8 @@ const ProductDetail = () => {
 
             {/* Quantity Selector */}
             {product.stock > 0 && (
-              <div className="glass rounded-2xl p-4">
-                <label className="block text-white/80 text-sm font-medium mb-3">
+              <div className="glass rounded-2xl p-4 bg-white/30">
+                <label className="block text-indigo-900/80 text-sm font-medium mb-3">
                   Quantity
                 </label>
                 <div className="flex items-center gap-4">
@@ -171,11 +171,11 @@ const ProductDetail = () => {
                       whileTap={{ scale: 0.9 }}
                       onClick={decrementQuantity}
                       disabled={quantity <= 1}
-                      className="w-12 h-12 rounded-xl bg-white/10 text-white flex items-center justify-center disabled:opacity-50"
+                      className="w-12 h-12 rounded-xl bg-indigo-500 text-white flex items-center justify-center disabled:opacity-50 hover:bg-indigo-600 transition-colors"
                     >
                       <Minus className="w-5 h-5" />
                     </motion.button>
-                    <span className="text-2xl font-bold text-white w-12 text-center">
+                    <span className="text-2xl font-bold text-indigo-900 w-12 text-center">
                       {quantity}
                     </span>
                     <motion.button
@@ -183,12 +183,12 @@ const ProductDetail = () => {
                       whileTap={{ scale: 0.9 }}
                       onClick={incrementQuantity}
                       disabled={quantity >= product.stock}
-                      className="w-12 h-12 rounded-xl bg-white/10 text-white flex items-center justify-center disabled:opacity-50"
+                      className="w-12 h-12 rounded-xl bg-indigo-500 text-white flex items-center justify-center disabled:opacity-50 hover:bg-indigo-600 transition-colors"
                     >
                       <Plus className="w-5 h-5" />
                     </motion.button>
                   </div>
-                  <span className="text-white/50">
+                  <span className="text-indigo-900/50">
                     Max: {product.stock} units
                   </span>
                 </div>
@@ -201,36 +201,36 @@ const ProductDetail = () => {
               whileTap={{ scale: 0.98 }}
               onClick={handleAddToCart}
               disabled={cartLoading || product.stock === 0}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white font-semibold text-lg flex items-center justify-center gap-3 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all disabled:opacity-50"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 text-white font-semibold text-lg flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all disabled:opacity-50"
             >
               {cartLoading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
                 <>
                   <ShoppingCart className="w-6 h-6" />
-                  {product.stock === 0 ? 'Out of Stock' : `Add to Cart - $${(product.price * quantity).toFixed(2)}`}
+                  {product.stock === 0 ? 'Out of Stock' : `Add to Cart - ₹${(product.price * quantity).toFixed(0)}`}
                 </>
               )}
             </motion.button>
 
             {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-              <div className="glass rounded-xl p-4 flex items-center gap-3">
+              <div className="glass rounded-xl p-4 flex items-center gap-3 bg-white/30">
                 <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-green-400" />
+                  <ShieldCheck className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-white font-medium">Quality Assured</p>
-                  <p className="text-white/50 text-sm">100% Organic</p>
+                  <p className="text-indigo-900 font-medium">Quality Assured</p>
+                  <p className="text-indigo-900/50 text-sm">100% Pure</p>
                 </div>
               </div>
-              <div className="glass rounded-xl p-4 flex items-center gap-3">
+              <div className="glass rounded-xl p-4 flex items-center gap-3 bg-white/30">
                 <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-blue-400" />
+                  <Clock className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-white font-medium">Fast Delivery</p>
-                  <p className="text-white/50 text-sm">Same Day Shipping</p>
+                  <p className="text-indigo-900 font-medium">Fresh Delivery</p>
+                  <p className="text-indigo-900/50 text-sm">Same Day Shipping</p>
                 </div>
               </div>
             </div>
@@ -242,4 +242,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
-
